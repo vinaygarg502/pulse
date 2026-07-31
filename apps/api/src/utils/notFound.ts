@@ -1,6 +1,6 @@
 import type { ServerResponse } from 'node:http';
 
-export const notFound = (res: ServerResponse) => {
+export const notFound = (res: ServerResponse, message: string) => {
   res.statusCode = 404;
-  res.end('Route not found');
+  res.end(message);
 };
