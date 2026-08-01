@@ -1,58 +1,99 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { badRequest } from '../utils/badRequest.js';
-import { addEvent, fetchId, getEventById, getEvents } from '../data/events.js';
-import { notFound } from '../utils/notFound.js';
+import {
+  addEvent,
+  deleteEventById,
+  fetchId,
+  getEventById,
+  getEvents,
+  patchEventById,
+  updateEventById,
+  validateEvent,
+  validatePatchEvent,
+} from '../data/events.js';
 import { BadRequestError } from '../errors/BadRequestError.js';
-import { NotFoundError } from '../errors/NotFoundError.js';
+import { withErrorHandler } from '../utils/withErrorHandler.js';
+import { created, noContent, ok } from '../utils/httpResponse.js';
 
-export const createEvent = (req: IncomingMessage, res: ServerResponse) => {
-  const chunks: Buffer[] = [];
-  req.on('data', (chunk) => {
-    chunks.push(chunk);
-  });
-  req.on('end', () => {
-    try {
+const reqBody = (req: IncomingMessage): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on('data', (chunk: Buffer) => {
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
       const bodyBuffer = Buffer.concat(chunks);
       const body = bodyBuffer.toString();
-      const event = JSON.parse(body);
-      const updatedEvent = addEvent(event);
-      res.statusCode = 201;
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ data: updatedEvent }));
-    } catch (err) {
-      if (err instanceof BadRequestError) {
-        badRequest(res, err.message);
-        return;
-      }
-
-      badRequest(res, 'Unknown error');
-    }
+      resolve(body);
+    });
+    req.on('error', reject);
   });
 };
 
+export const createEvent = withErrorHandler(async (req: IncomingMessage, res: ServerResponse) => {
+  const body = await reqBody(req);
+  let payload: unknown;
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    throw new BadRequestError('Invalid JSON payload');
+  }
+  const eventInput = validateEvent(payload);
+  const updatedEvent = addEvent(eventInput);
+  created(res, updatedEvent);
+});
+
 export const getEventsRoute = (res: ServerResponse) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ data: getEvents() }));
+  ok(res, getEvents());
 };
 
-export const getEventByIdRoute = (req: IncomingMessage, res: ServerResponse) => {
-  try {
-    const id = fetchId(req.url);
-    if (Number.isNaN(id)) {
-      throw new BadRequestError('Invalid Id');
-    }
-    const event = getEventById(id);
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ data: event }));
-  } catch (err) {
-    if (err instanceof BadRequestError) {
-      badRequest(res, err.message);
-      return;
-    }
-    if (err instanceof NotFoundError) {
-      notFound(res, err.message);
-    }
+export const getEventByIdRoute = withErrorHandler((req, res) => {
+  const id = fetchId(req.url);
+  if (Number.isNaN(id)) {
+    throw new BadRequestError('Invalid Id');
   }
-};
+  const event = getEventById(id);
+  ok(res, event);
+});
+
+export const deleteEventByIdRoute = withErrorHandler((req, res) => {
+  const id = fetchId(req.url);
+  if (Number.isNaN(id)) {
+    throw new BadRequestError('Invalid Id');
+  }
+  deleteEventById(id);
+  noContent(res);
+});
+export const updatedEventByIdRoute = withErrorHandler(async (req, res) => {
+  const id = fetchId(req.url);
+  if (Number.isNaN(id)) {
+    throw new BadRequestError('Invalid Id');
+  }
+
+  const body = await reqBody(req);
+  let payload: unknown;
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    throw new BadRequestError('Invalid JSON payload');
+  }
+  const eventInput = validateEvent(payload);
+  const updatedEvent = updateEventById(id, eventInput);
+  ok(res, updatedEvent);
+});
+export const updatePartialEventByIdRoute = withErrorHandler(async (req, res) => {
+  const id = fetchId(req.url);
+  if (Number.isNaN(id)) {
+    throw new BadRequestError('Invalid Id');
+  }
+
+  const body = await reqBody(req);
+  let payload: unknown;
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    throw new BadRequestError('Invalid JSON payload');
+  }
+  const eventInput = validatePatchEvent(payload);
+  const updatedEvent = patchEventById(id, eventInput);
+  ok(res, updatedEvent);
+});

@@ -1,8 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { ok } from '../utils/httpResponse.js';
 
 export const healthHandler = (req: IncomingMessage, res: ServerResponse) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ status: 'ok' }));
+  ok(res, { status: 'ok' });
   return;
 };
