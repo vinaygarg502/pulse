@@ -1,8 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import router from './router.js';
+import { dispatch } from './router/disptacher.js';
 const app = (req: IncomingMessage, res: ServerResponse) => {
   console.log('😊 Chef received a customer!');
 
-  router(req, res);
+  dispatch(req, res);
 };
 export default app;

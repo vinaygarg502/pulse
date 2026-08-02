@@ -2,7 +2,6 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import {
   addEvent,
   deleteEventById,
-  fetchId,
   getEventById,
   getEvents,
   patchEventById,
@@ -42,12 +41,12 @@ export const createEvent = withErrorHandler(async (req: IncomingMessage, res: Se
   created(res, updatedEvent);
 });
 
-export const getEventsRoute = (res: ServerResponse) => {
+export const getEventsRoute = withErrorHandler((req, res, context) => {
   ok(res, getEvents());
-};
+});
 
-export const getEventByIdRoute = withErrorHandler((req, res) => {
-  const id = fetchId(req.url);
+export const getEventByIdRoute = withErrorHandler((req, res, context) => {
+  const id = Number(context?.id);
   if (Number.isNaN(id)) {
     throw new BadRequestError('Invalid Id');
   }
@@ -55,16 +54,16 @@ export const getEventByIdRoute = withErrorHandler((req, res) => {
   ok(res, event);
 });
 
-export const deleteEventByIdRoute = withErrorHandler((req, res) => {
-  const id = fetchId(req.url);
+export const deleteEventByIdRoute = withErrorHandler((req, res, context) => {
+  const id = Number(context?.id);
   if (Number.isNaN(id)) {
     throw new BadRequestError('Invalid Id');
   }
   deleteEventById(id);
   noContent(res);
 });
-export const updatedEventByIdRoute = withErrorHandler(async (req, res) => {
-  const id = fetchId(req.url);
+export const updatedEventByIdRoute = withErrorHandler(async (req, res, context) => {
+  const id = Number(context?.id);
   if (Number.isNaN(id)) {
     throw new BadRequestError('Invalid Id');
   }
@@ -80,8 +79,8 @@ export const updatedEventByIdRoute = withErrorHandler(async (req, res) => {
   const updatedEvent = updateEventById(id, eventInput);
   ok(res, updatedEvent);
 });
-export const updatePartialEventByIdRoute = withErrorHandler(async (req, res) => {
-  const id = fetchId(req.url);
+export const updatePartialEventByIdRoute = withErrorHandler(async (req, res, context) => {
+  const id = Number(context?.id);
   if (Number.isNaN(id)) {
     throw new BadRequestError('Invalid Id');
   }

@@ -1,5 +1,6 @@
 import http from 'node:http';
 import app from './app.js';
+import './router/register.js';
 
 const server = http.createServer(app);
 server.listen(3000, () => {

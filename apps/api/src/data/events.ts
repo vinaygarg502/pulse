@@ -140,6 +140,3 @@ export const patchEventById = (id: number, event: Partial<EventInput>): Event =>
 export const updateEventById = (id: number, event: EventInput): Event => {
   return patchEventById(id, event);
 };
-export const fetchId = (url: string | undefined): number => {
-  return Number(url?.split('/').pop());
-};
