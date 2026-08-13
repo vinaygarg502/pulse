@@ -1,0 +1,46 @@
+.app-layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-rows: var(--header-height) 1fr;
+  min-height: 100vh;
+}
+
+.app-header {
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  grid-column: 1/3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header-brand {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.header-search {
+  width: 320px;
+}
+
+.app-sidebar {
+  grid-column: 1/2;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-4);
+}
+.app-sidebar nav {
+  width: 100%;
+}
+.app-sidebar ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.app-main {
+  grid-column: 2/3;
+  overflow: auto;
+  background: var(--color-background);
+  padding: var(--space-5);
+}
