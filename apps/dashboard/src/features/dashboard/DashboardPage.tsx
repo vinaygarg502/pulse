@@ -26,7 +26,7 @@ const DashboardPage = () => {
       </header>
       <section className="dashboard-metrics">
         {metrics.map((metric) => (
-          <div className="metric-card">
+          <div className="metric-card" key={metric.type}>
             <h3 className="metric-title">{metric.title}</h3>
             <p className="metric-value">{metric.value}</p>
             <span className="metric-change"> +12% today</span>
