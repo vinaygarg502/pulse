@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import './dashboard.css';
-import type { DashboardEvent } from './types';
-import { getDashboardEvents } from './dashboard.repository';
+import type { DashboardEvent, DashboardMetric } from './types';
+import { getDashboardData } from './dashboard.repository';
 const DashboardPage = () => {
   const [events, setEvents] = useState<DashboardEvent[]>([]);
+  const [metrics, setMetrics] = useState<DashboardMetric[]>([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const events = await getDashboardEvents();
+        const { events, metrics } = await getDashboardData();
         setEvents(events);
+        setMetrics(metrics);
+        console.log(events, metrics);
       } catch (err) {
         console.log(err);
       }
@@ -22,26 +25,13 @@ const DashboardPage = () => {
         <h1>Dashboard</h1>
       </header>
       <section className="dashboard-metrics">
-        <div className="metric-card">
-          <h3 className="metric-title">Requests</h3>
-          <p className="metric-value">1,24,567</p>
-          <span className="metric-change"> +12% today</span>
-        </div>
-        <div className="metric-card">
-          <h3 className="metric-title">Errors</h3>
-          <p className="metric-value">21</p>
-          <span className="metric-change"> -8% today</span>
-        </div>
-        <div className="metric-card">
-          <h3 className="metric-title">Latency</h3>
-          <p className="metric-value">145 ms</p>
-          <span className="metric-change"> -12 ms today</span>
-        </div>
-        <div className="metric-card">
-          <h3 className="metric-title">Availability</h3>
-          <p className="metric-value">99.98%</p>
-          <span className="metric-change"> +0.02%</span>
-        </div>
+        {metrics.map((metric) => (
+          <div className="metric-card">
+            <h3 className="metric-title">{metric.title}</h3>
+            <p className="metric-value">{metric.value}</p>
+            <span className="metric-change"> +12% today</span>
+          </div>
+        ))}
       </section>
       <section className="dashboard-events">
         <header className="events-header">

@@ -1,7 +1,8 @@
 import { getEventsData } from '@/services/events';
-import { getEvents } from './event.mapper';
+import { toDashboardData } from './dashboard.mapper';
+import { getMetricsData } from '@/services/metrics';
 
-export const getDashboardEvents = async () => {
-  const events = await getEventsData();
-  return getEvents(events);
+export const getDashboardData = async () => {
+  const [events, metrics] = await Promise.all([getEventsData(), getMetricsData()]);
+  return toDashboardData(events, metrics);
 };
