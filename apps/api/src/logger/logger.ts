@@ -11,7 +11,7 @@ const createLog = (level: LogLevel, message: string, configuration: Record<strin
     level,
     message,
     createdAt: timeStamp,
-    ...(duration ? { duration } : {}),
+    ...(duration !== undefined ? { duration } : {}),
   };
 };
 

@@ -46,8 +46,14 @@ export interface DashboardLog {
   duration?: number;
   levelVariant: string;
 }
-export interface DashboardData {
-  events: DashboardEvent[];
-  metrics: DashboardMetric[];
-  logs: DashboardLog[];
+
+export interface DashboardSection<T> {
+  data: T;
+  error: Error | null;
 }
+export interface DashboardData {
+  events: DashboardSection<DashboardEvent[]>;
+  metrics: DashboardSection<DashboardMetric[]>;
+  logs: DashboardSection<DashboardLog[]>;
+}
+export type Mapper = () => {};

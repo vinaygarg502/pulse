@@ -4,7 +4,6 @@ import type {
   ApiLog,
   ApiMetric,
   ApiMetrics,
-  DashboardData,
   DashboardEvent,
   DashboardLog,
   DashboardMetric,
@@ -56,19 +55,22 @@ export const metricMapper = (metric: ApiMetric): DashboardMetric => {
     value: metric.value,
   };
 };
-export const toDashboardData = (
-  events: ApiEvent[],
-  metrics: ApiMetrics,
-  logs: ApiLog[],
-): DashboardData => {
-  const mappedEvents = events.map(eventMapper);
-  const mappedLogs = logs.map(logMapper);
-  const mappedMetrics = Object.entries(metrics)
+
+export const toDashboardEvents = (events: ApiEvent[]): DashboardEvent[] => {
+  return events.map(eventMapper);
+};
+
+export const toDashboardLogs = (logs: ApiLog[]): DashboardLog[] => {
+  return logs.map(logMapper);
+};
+
+export const toDashboardMetrics = (metrics: ApiMetrics): DashboardMetric[] => {
+  return Object.entries(metrics)
     .sort((a, b) => metricOrder[a[0]] - metricOrder[b[0]])
-    .map(([key, value]) => metricMapper({ type: key, value: Number(value) }));
-  return {
-    events: mappedEvents,
-    metrics: mappedMetrics,
-    logs: mappedLogs,
-  };
+    .map(([key, value]) =>
+      metricMapper({
+        type: key,
+        value: Number(value),
+      }),
+    );
 };

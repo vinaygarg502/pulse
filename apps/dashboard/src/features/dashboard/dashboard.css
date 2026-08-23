@@ -17,11 +17,6 @@
 .dashboard-loading {
   margin: auto;
 }
-.dashboard-metrics {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-4);
-}
 .metric-card {
   display: flex;
   flex-direction: column;
@@ -73,8 +68,14 @@
   margin: auto;
 }
 .dashboard-card-content {
+  display: flex;
   flex: 1;
   padding: var(--space-4);
+}
+.dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
 }
 .dashboard-card-table {
   width: 100%;
