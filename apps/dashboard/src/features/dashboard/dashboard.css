@@ -52,7 +52,7 @@
   color: var(--color-success);
 }
 
-.dashboard-events {
+.dashboard-card {
   display: flex;
   flex-direction: column;
   min-height: 360px;
@@ -61,59 +61,59 @@
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
 }
-.events-header {
+.dashboard-card-header {
   padding: var(--space-4);
   border-bottom: 1px solid var(--color-border);
 }
-.events-header h2 {
-  font-size: 1.125 rem;
+.dashboard-card-header h2 {
+  font-size: 1.125rem;
   font-weight: 600;
 }
-.events-info {
+.dashboard-card-info {
   margin: auto;
 }
-.events-content {
+.dashboard-card-content {
   flex: 1;
   padding: var(--space-4);
 }
-.events-table {
+.dashboard-card-table {
   width: 100%;
   border-collapse: collapse;
 }
-.events-table th,
-.events-table td {
+.dashboard-card-table th,
+.dashboard-card-table td {
   padding: var(--space-3) var(--space-4);
   text-align: left;
 }
-.events-table th {
+.dashboard-card-table th {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-secondary);
   border-bottom: 1px solid var(--color-border);
 }
-.events-table td {
+.dashboard-card-table td {
   font-size: 0.9375rem;
   color: var(--color-text-primary);
   border-bottom: 1px solid var(--color-border);
 }
-.events-table tbody tr:last-child td {
+.dashboard-card-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.events-table tbody tr:hover {
+.dashboard-card-table tbody tr:hover {
   background: var(--color-background);
 }
-.events-table .status-error {
+.dashboard-card-table .badge-error {
   color: var(--color-error);
   font-weight: 600;
 }
 
-.events-table .status-warning {
+.dashboard-card-table .badge-warning {
   color: var(--color-warning);
   font-weight: 600;
 }
 
-.events-table .status-success {
+.dashboard-card-table .badge-success {
   color: var(--color-success);
   font-weight: 600;
 }

@@ -6,8 +6,4 @@ import './app/styles/globals.css';
 import './app/styles/layout.css';
 import App from './App.tsx';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+createRoot(document.getElementById('root')!).render(<App />);

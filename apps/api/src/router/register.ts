@@ -10,6 +10,7 @@ import {
 } from '../routes/events.js';
 import { healthHandler } from '../routes/health.js';
 import { getMetrics } from '../routes/metrics.js';
+import { getLogs } from '../routes/logs.js';
 
 registerRoute(HttpMethod.GET, '/events', getEventsRoute);
 registerRoute(HttpMethod.POST, '/events', createEvent);
@@ -18,4 +19,5 @@ registerRoute(HttpMethod.PATCH, '/events/:id', updatePartialEventByIdRoute);
 registerRoute(HttpMethod.DELETE, '/events/:id', deleteEventByIdRoute);
 registerRoute(HttpMethod.GET, '/events/:id', getEventByIdRoute);
 registerRoute(HttpMethod.GET, '/metrics', getMetrics);
+registerRoute(HttpMethod.GET, '/logs', getLogs);
 registerRoute(HttpMethod.GET, '/health', healthHandler);
