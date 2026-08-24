@@ -4,6 +4,9 @@ import type { DashboardLog, DashboardEvent, DashboardMetric, DashboardSection } 
 import { fetchEvents, fetchLogs, fetchMetrics, getDashboardData } from './dashboard.repository';
 import { SkeletonCard, SkeletonTable } from '@/components/skeleton';
 import { ErrorState } from '@/components/error/ErrorState';
+import { DashboardCard } from '@/components/dashboard-card';
+import { EmptyState } from '@/components/empty-state';
+
 const DashboardPage = () => {
   const [events, setEvents] = useState<DashboardSection<DashboardEvent[]>>({
     data: [],
@@ -64,7 +67,7 @@ const DashboardPage = () => {
       return <ErrorState title={'Unable to load metrics.'} onRetry={retryMetrics} />;
     }
     if (!metrics.data.length) {
-      return <div className="dashboard-card-info">No metrics available.</div>;
+      return <EmptyState message="No metrics available." />;
     }
     return metrics.data.map((metric) => (
       <div className="metric-card" key={metric.type}>
@@ -80,7 +83,7 @@ const DashboardPage = () => {
       return <ErrorState title={'Unable to load events.'} onRetry={retryEvents} />;
     }
     if (!events.data.length) {
-      return <div className="dashboard-card-info">No events available.</div>;
+      return <EmptyState message="No Events available." />;
     }
     return (
       <table className="dashboard-card-table">
@@ -110,7 +113,7 @@ const DashboardPage = () => {
       return <ErrorState title={'Unable to load logs.'} onRetry={retryLogs} />;
     }
     if (!logs.data.length) {
-      return <div className="dashboard-card-info">No Logs Available</div>;
+      return <EmptyState message="No Logs available." />;
     }
     return (
       <table className="dashboard-card-table">
@@ -140,33 +143,20 @@ const DashboardPage = () => {
       <header className="dashboard-header">
         <h1>Dashboard</h1>
       </header>
-      <section className="dashboard-card">
-        <header className="dashboard-card-header">
-          <h2>Recent Metrics</h2>
-        </header>
-        <div className="dashboard-card-content dashboard-metrics">
+      <DashboardCard title="Recent Metrics">
+        <div className="dashboard-metrics">
           {loading
             ? Array.from({ length: 4 }, (_, index) => <SkeletonCard key={index} />)
             : renderMetrics()}
         </div>
-      </section>
+      </DashboardCard>
 
-      <section className="dashboard-card">
-        <header className="dashboard-card-header">
-          <h2>Recent Events</h2>
-        </header>
-        <div className="dashboard-card-content dashboard-events">
-          {loading ? <SkeletonTable columns={4} rows={5} /> : renderEvents()}
-        </div>
-      </section>
-      <section className="dashboard-card">
-        <header className="dashboard-card-header">
-          <h2>Recent Logs</h2>
-        </header>
-        <div className="dashboard-card-content dashboard-logs">
-          {loading ? <SkeletonTable columns={4} rows={5} /> : renderLogs()}
-        </div>
-      </section>
+      <DashboardCard title="Recent Events">
+        {loading ? <SkeletonTable columns={4} rows={5} /> : renderEvents()}
+      </DashboardCard>
+      <DashboardCard title="Recent Logs">
+        {loading ? <SkeletonTable columns={4} rows={5} /> : renderLogs()}
+      </DashboardCard>
     </section>
   );
 };

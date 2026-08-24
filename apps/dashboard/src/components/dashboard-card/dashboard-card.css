@@ -1,0 +1,22 @@
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 360px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.dashboard-card-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+.dashboard-card-header h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+.dashboard-card-content {
+  display: flex;
+  flex: 1;
+  padding: var(--space-4);
+}

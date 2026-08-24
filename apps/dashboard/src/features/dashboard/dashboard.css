@@ -47,39 +47,16 @@
   color: var(--color-success);
 }
 
-.dashboard-card {
-  display: flex;
-  flex-direction: column;
-  min-height: 360px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-}
-.dashboard-card-header {
-  padding: var(--space-4);
-  border-bottom: 1px solid var(--color-border);
-}
-.dashboard-card-header h2 {
-  font-size: 1.125rem;
-  font-weight: 600;
-}
-.dashboard-card-info {
-  margin: auto;
-}
-.dashboard-card-content {
-  display: flex;
-  flex: 1;
-  padding: var(--space-4);
-}
 .dashboard-metrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--space-4);
+  flex: 1;
 }
 .dashboard-card-table {
   width: 100%;
   border-collapse: collapse;
+  align-self: flex-start;
 }
 .dashboard-card-table th,
 .dashboard-card-table td {

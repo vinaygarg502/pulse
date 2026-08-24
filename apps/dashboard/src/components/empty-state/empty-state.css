@@ -1,0 +1,7 @@
+.dashboard-info {
+  margin: auto;
+}
+.dashboard-empty {
+  display: flex;
+  flex: 1;
+}
