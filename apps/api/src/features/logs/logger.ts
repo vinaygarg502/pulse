@@ -1,4 +1,4 @@
-import { addLog } from './logs.js';
+import { addLog } from './store.js';
 import { Log, LogLevel } from './types.js';
 
 let nextLogId = 1;

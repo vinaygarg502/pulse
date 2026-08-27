@@ -1,7 +1,7 @@
 import http from 'node:http';
 import app from './app.js';
-import './router/register.js';
-import { config } from './config/config.js';
+import './app/router/register.js';
+import { config } from './app/config.js';
 
 const server = http.createServer(app);
 server.listen(config.port, () => {

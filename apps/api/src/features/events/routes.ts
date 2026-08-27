@@ -8,10 +8,10 @@ import {
   updateEventById,
   validateEvent,
   validatePatchEvent,
-} from '../data/events.js';
-import { BadRequestError } from '../errors/BadRequestError.js';
-import { withErrorHandler } from '../utils/withErrorHandler.js';
-import { created, noContent, ok } from '../utils/httpResponse.js';
+} from './store.js';
+import { BadRequestError } from '@/shared/errors/BadRequestError.js';
+import { withErrorHandler } from '@/shared/utils/withErrorHandler.js';
+import { created, noContent, ok } from '@/shared/utils/httpResponse.js';
 
 const reqBody = (req: IncomingMessage): Promise<string> => {
   return new Promise((resolve, reject) => {

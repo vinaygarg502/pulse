@@ -4,9 +4,9 @@ import {
   allowedKeys,
   AllowedKeys,
   EventInput,
-} from '../constants/eventTypes.js';
-import { BadRequestError } from '../errors/BadRequestError.js';
-import { NotFoundError } from '../errors/NotFoundError.js';
+} from './types.js';
+import { BadRequestError } from '@/shared/errors/BadRequestError.js';
+import { NotFoundError } from '@/shared/errors/NotFoundError.js';
 
 export interface Event {
   readonly id: number;

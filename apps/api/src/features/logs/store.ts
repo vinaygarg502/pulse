@@ -1,4 +1,4 @@
-import { Log, LogLevel } from './types.js';
+import { Log } from './types.js';
 
 const logs: Log[] = [];
 

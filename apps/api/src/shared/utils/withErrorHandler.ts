@@ -1,8 +1,7 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
 import { BadRequestError } from '../errors/BadRequestError.js';
 import { NotFoundError } from '../errors/NotFoundError.js';
 import { internalServerError, notFound, badRequest } from './httpResponse.js';
-import { RouteHandler } from '../types/router.js';
+import { RouteHandler } from '@/app/types/router.js';
 
 export const withErrorHandler = (handler: RouteHandler): RouteHandler => {
   return async (req, res, context) => {

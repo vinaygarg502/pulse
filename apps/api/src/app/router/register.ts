@@ -7,10 +7,10 @@ import {
   updatePartialEventByIdRoute,
   deleteEventByIdRoute,
   getEventByIdRoute,
-} from '../routes/events.js';
-import { healthHandler } from '../routes/health.js';
-import { getMetrics } from '../routes/metrics.js';
-import { getLogs } from '../routes/logs.js';
+} from '@/features/events/routes.js';
+import { healthHandler } from './../health/routes.js';
+import { getMetrics } from '@/features/metrics/routes.js';
+import { getLogs } from '@/features/logs/routes.js';
 
 registerRoute(HttpMethod.GET, '/events', getEventsRoute);
 registerRoute(HttpMethod.POST, '/events', createEvent);

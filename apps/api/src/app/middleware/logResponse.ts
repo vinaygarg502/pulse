@@ -1,6 +1,6 @@
-import { logger } from '../logger/logger.js';
+import { logger } from '@/features/logs/logger.js';
 
-export const logResponse = (
+export const logRequest = (
   statusCode: number,
   message: string,
   configuration: Record<string, number>,

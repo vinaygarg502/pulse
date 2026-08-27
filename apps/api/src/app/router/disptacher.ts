@@ -1,10 +1,10 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { router } from './router.js';
 import { HttpMethod } from '../types/http.js';
-import { notFound } from '../utils/httpResponse.js';
+import { notFound } from '@/shared/utils/httpResponse.js';
 import { findHandler } from './finder.js';
-import { logger } from '../logger/logger.js';
-import { logResponse } from './logResponse.js';
+import { logger } from '@/features/logs/logger.js';
+import { logRequest } from '../middleware/logResponse.js';
 
 export const dispatch = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
   const method = req.method as HttpMethod;
@@ -38,7 +38,7 @@ export const dispatch = async (req: IncomingMessage, res: ServerResponse): Promi
     const endTime = Date.now();
     const duration = endTime - startTime;
     if (pathName !== '/logs') {
-      logResponse(res.statusCode, `${method} ${pathName} - ${duration}ms`, { duration });
+      logRequest(res.statusCode, `${method} ${pathName} - ${duration}ms`, { duration });
     }
   });
   await routeMatch.handler(req, res, routeMatch.context);
