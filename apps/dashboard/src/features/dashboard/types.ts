@@ -4,6 +4,13 @@ export interface ApiEvent {
   createdAt: string;
   id: number;
 }
+export interface ApiSession {
+  id: string;
+  startedAt: string;
+  lastActivity: string;
+  eventCount: number;
+  status: string;
+}
 
 export const LOG_LEVEL = {
   INFO: 'INFO',
@@ -47,6 +54,15 @@ export interface DashboardLog {
   levelVariant: string;
 }
 
+export interface DashboardSession {
+  id: string;
+  startedAt: string;
+  lastActivity: string;
+  eventCount: number;
+  duration: string;
+  status: string;
+}
+
 export interface DashboardSection<T> {
   data: T;
   error: Error | null;
@@ -55,5 +71,5 @@ export interface DashboardData {
   events: DashboardSection<DashboardEvent[]>;
   metrics: DashboardSection<DashboardMetric[]>;
   logs: DashboardSection<DashboardLog[]>;
+  sessions: DashboardSection<DashboardSession[]>;
 }
-export type Mapper = () => {};

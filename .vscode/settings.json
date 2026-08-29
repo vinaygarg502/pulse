@@ -16,5 +16,6 @@
     "source.fixAll.eslint": "explicit"
   },
 
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"]
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "python-envs.defaultEnvManager": "ms-python.python:system"
 }

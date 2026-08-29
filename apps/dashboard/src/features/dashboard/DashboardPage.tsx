@@ -1,7 +1,19 @@
 import { useEffect, useState } from 'react';
 import './dashboard.css';
-import type { DashboardLog, DashboardEvent, DashboardMetric, DashboardSection } from './types';
-import { fetchEvents, fetchLogs, fetchMetrics, getDashboardData } from './dashboard.repository';
+import type {
+  DashboardLog,
+  DashboardEvent,
+  DashboardMetric,
+  DashboardSection,
+  DashboardSession,
+} from './types';
+import {
+  fetchEvents,
+  fetchLogs,
+  fetchMetrics,
+  fetchSessions,
+  getDashboardData,
+} from './dashboard.repository';
 import { SkeletonCard, SkeletonTable } from '@/components/skeleton';
 import { ErrorState } from '@/components/error/ErrorState';
 import { DashboardCard } from '@/components/dashboard-card';
@@ -20,16 +32,21 @@ const DashboardPage = () => {
     data: [],
     error: null,
   });
+  const [sessions, setSessions] = useState<DashboardSection<DashboardSession[]>>({
+    data: [],
+    error: null,
+  });
 
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchDashboardData = async (signal: AbortSignal) => {
     try {
       setLoading(true);
-      const { events, metrics, logs } = await getDashboardData(signal);
+      const { events, metrics, logs, sessions } = await getDashboardData(signal);
       setEvents(events);
       setMetrics(metrics);
       setLogs(logs);
+      setSessions(sessions);
     } catch (err) {
       if (err instanceof Error && err.name !== 'AbortError') {
         console.log(err);
@@ -52,6 +69,11 @@ const DashboardPage = () => {
   const retryLogs = async () => {
     const controller = new AbortController();
     setLogs(await fetchLogs(controller.signal));
+  };
+
+  const retrySessions = async () => {
+    const controller = new AbortController();
+    setSessions(await fetchSessions(controller.signal));
   };
 
   useEffect(() => {
@@ -138,6 +160,42 @@ const DashboardPage = () => {
       </table>
     );
   };
+  const renderSessions = () => {
+    if (sessions.error) {
+      return <ErrorState title={'Unable to load sessions.'} onRetry={retrySessions} />;
+    }
+    if (!sessions.data.length) {
+      return <EmptyState message="No Sessions available." />;
+    }
+    return (
+      <table className="dashboard-card-table">
+        <thead>
+          <tr>
+            <th>Session Id</th>
+            <th>Start Time</th>
+            <th>Last Activity Time</th>
+            <th>Duration</th>
+            <th>Total Events</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sessions.data.map((session) => (
+            <tr key={session.id}>
+              <td>{session.id}</td>
+              <td>{session.startedAt}</td>
+              <td>{session.lastActivity}</td>
+              <td>{session.duration ?? '--'}</td>
+              <td>{session.eventCount}</td>
+              <td className={`${session.status === 'ACTIVE' ? 'badge-success' : ''}`}>
+                {session.status}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
   return (
     <section className="dashboard-page">
       <header className="dashboard-header">
@@ -156,6 +214,9 @@ const DashboardPage = () => {
       </DashboardCard>
       <DashboardCard title="Recent Logs">
         {loading ? <SkeletonTable columns={4} rows={5} /> : renderLogs()}
+      </DashboardCard>
+      <DashboardCard title="Recent Sessions">
+        {loading ? <SkeletonTable columns={6} rows={5} /> : renderSessions()}
       </DashboardCard>
     </section>
   );

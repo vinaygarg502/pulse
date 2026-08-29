@@ -1,5 +1,6 @@
-import { formatTime } from '@/utils/date';
+import { formatDuration, formatTime } from '@/utils/date';
 import type {
+  ApiSession,
   ApiEvent,
   ApiLog,
   ApiMetric,
@@ -7,6 +8,7 @@ import type {
   DashboardEvent,
   DashboardLog,
   DashboardMetric,
+  DashboardSession,
   LogLevel,
 } from './types';
 
@@ -56,6 +58,20 @@ export const metricMapper = (metric: ApiMetric): DashboardMetric => {
   };
 };
 
+export const sessionMapper = (session: ApiSession): DashboardSession => {
+  const durationInMinutes = Math.floor(
+    (new Date(session.lastActivity).getTime() - new Date(session.startedAt).getTime()) /
+      (1000 * 60),
+  );
+  return {
+    ...session,
+    id: `#${session.id.replace('sess_', '')}`,
+    startedAt: formatTime(session.startedAt),
+    lastActivity: formatTime(session.lastActivity),
+    duration: formatDuration(durationInMinutes),
+  };
+};
+
 export const toDashboardEvents = (events: ApiEvent[]): DashboardEvent[] => {
   return events.map(eventMapper);
 };
@@ -73,4 +89,8 @@ export const toDashboardMetrics = (metrics: ApiMetrics): DashboardMetric[] => {
         value: Number(value),
       }),
     );
+};
+
+export const toDashboardSessions = (sessions: ApiSession[]): DashboardSession[] => {
+  return sessions.map(sessionMapper);
 };

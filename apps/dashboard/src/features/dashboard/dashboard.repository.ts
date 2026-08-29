@@ -1,5 +1,10 @@
 import { getEventsData } from '@/services/events';
-import { toDashboardEvents, toDashboardLogs, toDashboardMetrics } from './dashboard.mapper';
+import {
+  toDashboardEvents,
+  toDashboardLogs,
+  toDashboardMetrics,
+  toDashboardSessions,
+} from './dashboard.mapper';
 import { getMetricsData } from '@/services/metrics';
 import { getLogsData } from '@/services/logs';
 import type {
@@ -8,7 +13,9 @@ import type {
   DashboardLog,
   DashboardMetric,
   DashboardSection,
+  DashboardSession,
 } from './types';
+import { getSessions } from '@/services/sessions';
 
 const loadDashboardSection = async <T, R>(
   request: Promise<T>,
@@ -30,15 +37,17 @@ const loadDashboardSection = async <T, R>(
 };
 
 export const getDashboardData = async (signal: AbortSignal): Promise<DashboardData> => {
-  const [events, metrics, logs] = await Promise.all([
+  const [events, metrics, logs, sessions] = await Promise.all([
     fetchEvents(signal),
     fetchMetrics(signal),
     fetchLogs(signal),
+    fetchSessions(signal),
   ]);
   return {
     events,
     metrics,
     logs,
+    sessions,
   };
 };
 
@@ -54,4 +63,10 @@ export const fetchMetrics = async (
 };
 export const fetchLogs = async (signal: AbortSignal): Promise<DashboardSection<DashboardLog[]>> => {
   return loadDashboardSection(getLogsData(signal), toDashboardLogs, []);
+};
+
+export const fetchSessions = async (
+  signal: AbortSignal,
+): Promise<DashboardSection<DashboardSession[]>> => {
+  return loadDashboardSection(getSessions(signal), toDashboardSessions, []);
 };
