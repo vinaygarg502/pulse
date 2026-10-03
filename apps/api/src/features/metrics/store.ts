@@ -12,5 +12,5 @@ export const getMetricsData = () => {
     metrics[type] += 1;
   }
   metrics.totalEvents = events.length;
-  return metrics;
+  return { ...metrics };
 };

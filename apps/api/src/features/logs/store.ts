@@ -7,7 +7,7 @@ const addLog = (log: Log) => {
 };
 
 const getLogsData = (): Log[] => {
-  return logs;
+  return [...logs];
 };
 
 export { addLog, getLogsData };
