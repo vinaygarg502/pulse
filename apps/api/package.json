@@ -28,6 +28,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@pact-foundation/pact": "^17.1.4",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
     "@vitest/coverage-v8": "^5.0.1",
