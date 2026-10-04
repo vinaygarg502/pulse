@@ -1,9 +1,8 @@
+import type { Event } from '../events/store.js';
 import type { Metrics } from './types.js';
-import { getEvents } from '../events/store.js';
 
-export const getMetricsData = () => {
+export const getMetricsData = (events: Event[]): Metrics => {
   const metrics: Metrics = {};
-  const events = getEvents();
   for (const event of events) {
     const type = event.type;
     if (!(type in metrics)) {

@@ -157,12 +157,3 @@ export const createEventStore = (): EventStore => {
     updateEventById,
   };
 };
-
-const defaultStore: EventStore = createEventStore();
-
-export const addEvent = defaultStore.addEvent;
-export const getEvents = defaultStore.getEvents;
-export const getEventById = defaultStore.getEventById;
-export const deleteEventById = defaultStore.deleteEventById;
-export const patchEventById = defaultStore.patchEventById;
-export const updateEventById = defaultStore.updateEventById;

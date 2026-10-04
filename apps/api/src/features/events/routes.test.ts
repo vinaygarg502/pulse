@@ -1,40 +1,30 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import {
-  addEvent,
-  deleteEventById,
-  getEventById,
-  getEvents,
-  updateEventById,
-  patchEventById,
-} from './store.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { EventStore } from './store.js';
 import { mockResponse } from '@/test/mockResponse.js';
-import {
-  createEvent,
-  deleteEventByIdRoute,
-  getEventByIdRoute,
-  getEventsRoute,
-  updatedEventByIdRoute,
-  updatePartialEventByIdRoute,
-} from './routes.js';
+import { createEventRoutes } from './routes.js';
 import { NotFoundError } from '@/shared/errors/NotFoundError.js';
 
-vi.mock('./store.js', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('./store.js')>();
-  return {
-    ...actual,
+let store: EventStore;
+let routes: ReturnType<typeof createEventRoutes>;
+
+beforeEach(() => {
+  store = {
+    addEvent: vi.fn(),
     getEvents: vi.fn(),
     getEventById: vi.fn(),
     deleteEventById: vi.fn(),
-    addEvent: vi.fn(),
-    updateEventById: vi.fn(),
     patchEventById: vi.fn(),
+    updateEventById: vi.fn(),
   };
+
+  routes = createEventRoutes(store);
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
 });
 
 describe('getEventsRoute', () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
   it('should return all the events', () => {
     const events = [
       {
@@ -44,11 +34,13 @@ describe('getEventsRoute', () => {
         createdAt: new Date(),
       },
     ];
-    vi.mocked(getEvents).mockReturnValue(events);
-    const res = mockResponse();
-    getEventsRoute({} as any, res as any);
 
-    expect(getEvents).toHaveBeenCalledOnce();
+    vi.mocked(store.getEvents).mockReturnValue(events);
+
+    const res = mockResponse();
+    routes.getEventsRoute({} as any, res as any);
+
+    expect(store.getEvents).toHaveBeenCalledOnce();
     expect(res.statusCode).toBe(200);
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
@@ -59,9 +51,6 @@ describe('getEventsRoute', () => {
 });
 
 describe('getEventByIdRoute', () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
   it('should return the event by id', () => {
     const event = {
       id: 1,
@@ -69,11 +58,13 @@ describe('getEventByIdRoute', () => {
       url: 'https://example.com',
       createdAt: new Date(),
     };
-    vi.mocked(getEventById).mockReturnValue(event);
-    const res = mockResponse();
-    getEventByIdRoute({} as any, res as any, { id: '1' });
 
-    expect(getEventById).toHaveBeenCalledOnce();
+    vi.mocked(store.getEventById).mockReturnValue(event);
+
+    const res = mockResponse();
+    routes.getEventByIdRoute({} as any, res as any, { id: '1' });
+
+    expect(store.getEventById).toHaveBeenCalledOnce();
     expect(res.statusCode).toBe(200);
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
@@ -81,23 +72,29 @@ describe('getEventByIdRoute', () => {
       }),
     );
   });
+
   it('should return 400 if id is invalid', () => {
     const res = mockResponse();
-    getEventByIdRoute({} as any, res as any, { id: 'abc' });
+
+    routes.getEventByIdRoute({} as any, res as any, { id: 'abc' });
+
     expect(res.statusCode).toBe(400);
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Invalid Id',
       }),
     );
-    expect(getEventById).not.toHaveBeenCalled();
+    expect(store.getEventById).not.toHaveBeenCalled();
   });
+
   it('should return 404 if event is not found', () => {
-    vi.mocked(getEventById).mockImplementation(() => {
+    vi.mocked(store.getEventById).mockImplementation(() => {
       throw new NotFoundError('Event Not Found');
     });
+
     const res = mockResponse();
-    getEventByIdRoute({} as any, res as any, { id: '999' });
+    routes.getEventByIdRoute({} as any, res as any, { id: '999' });
+
     expect(res.statusCode).toBe(404);
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
@@ -106,38 +103,43 @@ describe('getEventByIdRoute', () => {
     );
   });
 });
-describe('deleteEventByIdRoute', () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-  it('should delete event and return 204', () => {
-    const res = mockResponse();
-    deleteEventByIdRoute({} as any, res as any, { id: '1' });
 
-    expect(deleteEventById).toHaveBeenCalledWith(1);
+describe('deleteEventByIdRoute', () => {
+  it('should delete event and return 204', () => {
+    vi.mocked(store.deleteEventById).mockImplementation(() => undefined);
+
+    const res = mockResponse();
+    routes.deleteEventByIdRoute({} as any, res as any, { id: '1' });
+
+    expect(store.deleteEventById).toHaveBeenCalledWith(1);
     expect(res.statusCode).toBe(204);
     expect(res.end).toHaveBeenCalled();
   });
+
   it('should return 400 if id is invalid', () => {
     const res = mockResponse();
-    deleteEventByIdRoute({} as any, res as any, { id: 'abc' });
+
+    routes.deleteEventByIdRoute({} as any, res as any, { id: 'abc' });
+
     expect(res.statusCode).toBe(400);
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Invalid Id',
       }),
     );
-    expect(deleteEventById).not.toHaveBeenCalled();
+    expect(store.deleteEventById).not.toHaveBeenCalled();
   });
+
   it('should return 404 if event is not found', () => {
-    vi.mocked(deleteEventById).mockImplementation(() => {
+    vi.mocked(store.deleteEventById).mockImplementation(() => {
       throw new NotFoundError('Event Not Found');
     });
-    const res = mockResponse();
-    deleteEventByIdRoute({} as any, res as any, { id: '999' });
-    expect(deleteEventById).toHaveBeenCalledWith(999);
-    expect(res.statusCode).toBe(404);
 
+    const res = mockResponse();
+    routes.deleteEventByIdRoute({} as any, res as any, { id: '999' });
+
+    expect(store.deleteEventById).toHaveBeenCalledWith(999);
+    expect(res.statusCode).toBe(404);
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Event Not Found',
@@ -157,6 +159,7 @@ const mockRequest = (body: string) => ({
     }
   }),
 });
+
 describe('createEvent', () => {
   it('should create event and return 201', async () => {
     const event = {
@@ -165,7 +168,9 @@ describe('createEvent', () => {
       url: 'https://example.com',
       createdAt: new Date(),
     };
-    vi.mocked(addEvent).mockReturnValue(event);
+
+    vi.mocked(store.addEvent).mockReturnValue(event);
+
     const res = mockResponse();
     const req = mockRequest(
       JSON.stringify({
@@ -173,8 +178,10 @@ describe('createEvent', () => {
         url: 'https://example.com',
       }),
     );
-    await createEvent(req as any, res as any);
-    expect(addEvent).toHaveBeenCalledWith({
+
+    await routes.createEvent(req as any, res as any);
+
+    expect(store.addEvent).toHaveBeenCalledWith({
       type: 'page_view',
       url: 'https://example.com',
     });
@@ -185,10 +192,12 @@ describe('createEvent', () => {
       }),
     );
   });
+
   it('should create 400 with invalid json payload', async () => {
     const res = mockResponse();
     const req = mockRequest('{invalid json payload}');
-    await createEvent(req as any, res as any);
+
+    await routes.createEvent(req as any, res as any);
 
     expect(res.statusCode).toBe(400);
     expect(res.end).toHaveBeenCalledWith(
@@ -196,8 +205,9 @@ describe('createEvent', () => {
         error: 'Invalid JSON payload',
       }),
     );
-    expect(addEvent).not.toHaveBeenCalled();
+    expect(store.addEvent).not.toHaveBeenCalled();
   });
+
   it('should create 400 when event payload is invalid', async () => {
     const res = mockResponse();
     const req = mockRequest(
@@ -206,7 +216,8 @@ describe('createEvent', () => {
         url: 'https://example.com',
       }),
     );
-    await createEvent(req as any, res as any);
+
+    await routes.createEvent(req as any, res as any);
 
     expect(res.statusCode).toBe(400);
     expect(res.end).toHaveBeenCalledWith(
@@ -214,7 +225,7 @@ describe('createEvent', () => {
         error: 'Invalid Event Type',
       }),
     );
-    expect(addEvent).not.toHaveBeenCalled();
+    expect(store.addEvent).not.toHaveBeenCalled();
   });
 });
 
@@ -227,7 +238,9 @@ describe('updateEventByIdRoute', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    vi.mocked(updateEventById).mockReturnValue(event);
+
+    vi.mocked(store.updateEventById).mockReturnValue(event);
+
     const req = mockRequest(
       JSON.stringify({
         type: 'page_view',
@@ -235,13 +248,14 @@ describe('updateEventByIdRoute', () => {
       }),
     );
     const res = mockResponse();
-    await updatedEventByIdRoute(req as any, res as any, { id: '1' });
-    expect(updateEventById).toHaveBeenCalledWith(1, {
+
+    await routes.updatedEventByIdRoute(req as any, res as any, { id: '1' });
+
+    expect(store.updateEventById).toHaveBeenCalledWith(1, {
       type: 'page_view',
       url: 'https://www.example.com',
     });
     expect(res.statusCode).toBe(200);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         data: event,
@@ -257,17 +271,18 @@ describe('updateEventByIdRoute', () => {
       }),
     );
     const res = mockResponse();
-    await updatedEventByIdRoute(req as any, res as any, { id: 'abc' });
+
+    await routes.updatedEventByIdRoute(req as any, res as any, { id: 'abc' });
 
     expect(res.statusCode).toBe(400);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Invalid Id',
       }),
     );
-    expect(updateEventById).not.toHaveBeenCalled();
+    expect(store.updateEventById).not.toHaveBeenCalled();
   });
+
   it('should return 400 if event input is invalid', async () => {
     const req = mockRequest(
       JSON.stringify({
@@ -276,20 +291,20 @@ describe('updateEventByIdRoute', () => {
       }),
     );
     const res = mockResponse();
-    await updatedEventByIdRoute(req as any, res as any, { id: '1' });
+
+    await routes.updatedEventByIdRoute(req as any, res as any, { id: '1' });
 
     expect(res.statusCode).toBe(400);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Invalid Event Type',
       }),
     );
-    expect(updateEventById).not.toHaveBeenCalled();
+    expect(store.updateEventById).not.toHaveBeenCalled();
   });
 
   it('should return 404 if event id is not found', async () => {
-    vi.mocked(updateEventById).mockImplementation(() => {
+    vi.mocked(store.updateEventById).mockImplementation(() => {
       throw new NotFoundError('Event Not Found');
     });
 
@@ -300,34 +315,34 @@ describe('updateEventByIdRoute', () => {
       }),
     );
     const res = mockResponse();
-    await updatedEventByIdRoute(req as any, res as any, { id: '999' });
-    expect(updateEventById).toHaveBeenCalledWith(999, {
+
+    await routes.updatedEventByIdRoute(req as any, res as any, { id: '999' });
+
+    expect(store.updateEventById).toHaveBeenCalledWith(999, {
       type: 'page_view',
       url: 'https://www.example.com',
     });
     expect(res.statusCode).toBe(404);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Event Not Found',
       }),
     );
   });
+
   it('should return 400 if JSON payload is invalid', async () => {
     const req = mockRequest('{invalid-json}');
     const res = mockResponse();
 
-    await updatedEventByIdRoute(req as any, res as any, { id: '1' });
+    await routes.updatedEventByIdRoute(req as any, res as any, { id: '1' });
 
     expect(res.statusCode).toBe(400);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Invalid JSON payload',
       }),
     );
-
-    expect(updateEventById).not.toHaveBeenCalled();
+    expect(store.updateEventById).not.toHaveBeenCalled();
   });
 });
 
@@ -340,19 +355,22 @@ describe('updatePartialEventByIdRoute', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    vi.mocked(patchEventById).mockReturnValue(event);
+
+    vi.mocked(store.patchEventById).mockReturnValue(event);
+
     const req = mockRequest(
       JSON.stringify({
         url: 'https://www.example.com',
       }),
     );
     const res = mockResponse();
-    await updatePartialEventByIdRoute(req as any, res as any, { id: '1' });
-    expect(patchEventById).toHaveBeenCalledWith(1, {
+
+    await routes.updatePartialEventByIdRoute(req as any, res as any, { id: '1' });
+
+    expect(store.patchEventById).toHaveBeenCalledWith(1, {
       url: 'https://www.example.com',
     });
     expect(res.statusCode).toBe(200);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         data: event,
@@ -367,17 +385,18 @@ describe('updatePartialEventByIdRoute', () => {
       }),
     );
     const res = mockResponse();
-    await updatePartialEventByIdRoute(req as any, res as any, { id: 'abc' });
+
+    await routes.updatePartialEventByIdRoute(req as any, res as any, { id: 'abc' });
 
     expect(res.statusCode).toBe(400);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Invalid Id',
       }),
     );
-    expect(patchEventById).not.toHaveBeenCalled();
+    expect(store.patchEventById).not.toHaveBeenCalled();
   });
+
   it('should return 400 if event input is invalid', async () => {
     const req = mockRequest(
       JSON.stringify({
@@ -385,20 +404,20 @@ describe('updatePartialEventByIdRoute', () => {
       }),
     );
     const res = mockResponse();
-    await updatePartialEventByIdRoute(req as any, res as any, { id: '1' });
+
+    await routes.updatePartialEventByIdRoute(req as any, res as any, { id: '1' });
 
     expect(res.statusCode).toBe(400);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Invalid Event Type',
       }),
     );
-    expect(patchEventById).not.toHaveBeenCalled();
+    expect(store.patchEventById).not.toHaveBeenCalled();
   });
 
   it('should return 404 if event id is not found', async () => {
-    vi.mocked(patchEventById).mockImplementation(() => {
+    vi.mocked(store.patchEventById).mockImplementation(() => {
       throw new NotFoundError('Event Not Found');
     });
 
@@ -409,49 +428,48 @@ describe('updatePartialEventByIdRoute', () => {
       }),
     );
     const res = mockResponse();
-    await updatePartialEventByIdRoute(req as any, res as any, { id: '999' });
-    expect(patchEventById).toHaveBeenCalledWith(999, {
+
+    await routes.updatePartialEventByIdRoute(req as any, res as any, { id: '999' });
+
+    expect(store.patchEventById).toHaveBeenCalledWith(999, {
       type: 'page_view',
       url: 'https://www.example.com',
     });
     expect(res.statusCode).toBe(404);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Event Not Found',
       }),
     );
   });
+
   it('should return 400 if JSON payload is invalid', async () => {
     const req = mockRequest('{invalid-json}');
     const res = mockResponse();
 
-    await updatePartialEventByIdRoute(req as any, res as any, { id: '1' });
+    await routes.updatePartialEventByIdRoute(req as any, res as any, { id: '1' });
 
     expect(res.statusCode).toBe(400);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'Invalid JSON payload',
       }),
     );
-
-    expect(patchEventById).not.toHaveBeenCalled();
+    expect(store.patchEventById).not.toHaveBeenCalled();
   });
+
   it('should return 400 if patch payload is empty', async () => {
     const req = mockRequest(JSON.stringify({}));
     const res = mockResponse();
 
-    await updatePartialEventByIdRoute(req as any, res as any, { id: '1' });
+    await routes.updatePartialEventByIdRoute(req as any, res as any, { id: '1' });
 
     expect(res.statusCode).toBe(400);
-
     expect(res.end).toHaveBeenCalledWith(
       JSON.stringify({
         error: 'At least one field must be present.',
       }),
     );
-
-    expect(patchEventById).not.toHaveBeenCalled();
+    expect(store.patchEventById).not.toHaveBeenCalled();
   });
 });
